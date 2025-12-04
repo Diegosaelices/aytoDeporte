@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Página para crear reservas: selección de instalación, fecha y hora disponible. -->
+  <!-- Muestra la disponibilidad en tiempo real y un resumen antes de confirmar. -->
+
+  <meta charset="UTF-8" />
+  <title>Reservar · AytoDeporte</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link rel="stylesheet" href="css/estilos.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+
+  <div data-include="header.html"></div>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        <h1 class="section-title">Reservar pista</h1>
+        <p class="section-subtitle">
+          Selecciona la instalación, la fecha y una hora de inicio. Después elige la duración
+          de la reserva. El sistema solo permitirá combinaciones disponibles.
+        </p>
+      </div>
+    </section>
+
+    <section class="section section-tight">
+      <div class="container">
+        <div class="installations-toolbar">
+          <div class="installations-filters">
+            <div class="field-group">
+              <label for="reservationInstallation">Instalación</label>
+              <select id="reservationInstallation">
+                <option value="">Seleccionar instalación</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label for="reservationDate">Fecha</label>
+              <input type="date" id="reservationDate" />
+            </div>
+          </div>
+
+          <div class="installations-indicators"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-no-top">
+      <div class="container grid-2">
+        <div>
+          <h2 class="section-title">Disponibilidad</h2>
+          <p class="section-subtitle">
+            Selecciona una <strong>hora de inicio</strong>. La duración mínima es de 1 hora
+            y la máxima de 3 horas, en bloques de 30 minutos.
+          </p>
+
+          <div id="availabilityList" class="installations-grid" aria-live="polite"></div>
+
+          <p id="availabilityEmptyMessage" class="empty-message" hidden>
+            No hay franjas disponibles para la instalación y fecha seleccionadas.
+          </p>
+
+          <p id="availabilityErrorMessage" class="error-message" hidden>
+            Ha ocurrido un error al cargar la disponibilidad.
+            <br />
+            <span class="error-detail"></span>
+          </p>
+        </div>
+
+        <div class="section-box">
+          <h3>Resumen de la reserva</h3>
+          <p class="section-subtitle">
+            Revisa los datos de la reserva antes de confirmarla.
+          </p>
+
+          <div class="field-group" style="margin-top: 12px;">
+            <label for="durationSelect">Duración</label>
+            <select id="durationSelect">
+              <option value="60">1 hora</option>
+              <option value="90">1,5 horas</option>
+              <option value="120">2 horas</option>
+              <option value="150">2,5 horas</option>
+              <option value="180">3 horas</option>
+            </select>
+          </div>
+
+          <div id="reservationSummary" class="quick-links" aria-live="polite">
+            <div class="quick-link">
+              <span class="quick-link-title">Sin selección todavía</span>
+              <span class="quick-link-desc">
+                Elige una instalación, fecha y hora de inicio en el listado de la izquierda.
+              </span>
+            </div>
+          </div>
+
+          <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
+            <button id="btnConfirmReservation" class="btn btn-primary" disabled>
+              Confirmar reserva
+            </button>
+            <span id="reservationFeedback" class="hero-card-note" aria-live="polite"></span>
+          </div>
+
+          <div style="margin-top: 12px; font-size: 12px; color: var(--color-text-soft);">
+            <p>
+              Una vez confirmes la reserva, se generará un registro en el sistema
+              y podrás consultarla desde <strong>Mi perfil &gt; Mis reservas</strong>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div data-include="footer.html"></div>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/include.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/reservas.js"></script>
+</body>
+</html>

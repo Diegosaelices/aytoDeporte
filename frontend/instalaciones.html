@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Página que muestra todas las instalaciones deportivas disponibles.
+       Permite filtrarlas por nombre, tipo y buscador dinámico. -->
+
+  <meta charset="UTF-8" />
+  <title>Instalaciones · AytoDeporte</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link rel="stylesheet" href="css/estilos.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+
+  <div data-include="header.html"></div>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        <h1 class="section-title">Instalaciones deportivas</h1>
+        <p class="section-subtitle">
+          Consulta de forma clara todas las instalaciones disponibles, su tipo,
+          el precio por hora y su estado.
+        </p>
+      </div>
+    </section>
+
+    <section class="section section-tight">
+      <div class="container">
+        <div class="installations-toolbar">
+          <div class="installations-filters">
+            <div class="field-group">
+              <label for="searchInstallations">Buscar</label>
+              <input
+                type="search"
+                id="searchInstallations"
+                placeholder="Nombre, tipo (pádel, tenis...), ubicación..."
+              />
+            </div>
+
+            <div class="field-group">
+              <label for="typeFilter">Tipo</label>
+              <select id="typeFilter">
+                <option value="">Todos</option>
+                <option value="PADEL">Pádel</option>
+                <option value="TENIS">Tenis</option>
+                <option value="FUTBOL">Fútbol</option>
+                <option value="MULTIUSO">Multipista</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="installations-indicators">
+            <span id="installationsCount" class="chip chip-soft">0 instalaciones</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-no-top">
+      <div class="container">
+        <div
+          id="installationsList"
+          class="installations-grid"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <article class="installation-card skeleton">
+            <div class="installation-card-header">
+              <div class="skeleton-line w-60"></div>
+              <span class="skeleton-pill"></span>
+            </div>
+            <div class="skeleton-line w-40"></div>
+            <div class="skeleton-line w-80"></div>
+            <div class="installation-card-footer">
+              <span class="skeleton-pill small"></span>
+              <span class="skeleton-pill small"></span>
+            </div>
+          </article>
+
+          <article class="installation-card skeleton">
+            <div class="installation-card-header">
+              <div class="skeleton-line w-50"></div>
+              <span class="skeleton-pill"></span>
+            </div>
+            <div class="skeleton-line w-35"></div>
+            <div class="skeleton-line w-70"></div>
+            <div class="installation-card-footer">
+              <span class="skeleton-pill small"></span>
+              <span class="skeleton-pill small"></span>
+            </div>
+          </article>
+        </div>
+
+        <p id="installationsEmptyMessage" class="empty-message" hidden>
+          No se han encontrado instalaciones con los filtros seleccionados.
+        </p>
+
+        <p id="installationsErrorMessage" class="error-message" hidden>
+          Ha ocurrido un error al cargar las instalaciones.
+          <br />
+          <span class="error-detail"></span>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <div data-include="footer.html"></div>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/include.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/instalaciones.js"></script>
+</body>
+</html>

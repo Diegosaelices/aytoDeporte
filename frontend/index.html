@@ -1,0 +1,132 @@
+<!DOCTYPE html> 
+<html lang="es">
+<head>
+  <!-- Página de inicio del sistema de reservas. Presenta ventajas, acceso rápido y explicación del funcionamiento. -->
+  <!-- Diseñada para orientar al usuario y guiarlo hacia iniciar sesión o reservar. -->
+
+  <meta charset="UTF-8" />
+  <title>AytoDeporte · Reserva de instalaciones</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link rel="stylesheet" href="css/estilos.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+
+  <div data-include="header.html"></div>
+
+  <main id="inicio">
+    <section class="hero">
+      <div class="container hero-inner-single" id="home-hero">
+        <h1 id="home-hero-title">
+          Inicia sesión y reserva tus pistas deportivas de forma sencilla y rápida
+        </h1>
+        <p id="home-hero-text">
+          Consulta la disponibilidad, reserva una pista y gestiona tus reservas desde cualquier dispositivo.
+        </p>
+        <div class="hero-actions" id="home-hero-actions">
+          <a href="login.html" class="btn btn-primary">Iniciar Sesión</a>
+          <a href="register.html" class="btn btn-secondary">Registrate</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">Pensado para todos los usuarios</h2>
+        <p class="section-subtitle">
+          Interfaz limpia, mensajes claros y pasos guiados para que reservar sea tan fácil como enviar un mensaje.
+        </p>
+
+        <div class="grid-3">
+          <article class="feature-card">
+            <h3>Reserva en 3 pasos</h3>
+            <p>
+              Elige instalación, fecha y hora. El sistema te guía evitando errores de horario o solapamientos.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <h3>Disponibilidad en tiempo real</h3>
+            <p>
+              Consulta las franjas <strong>DISPONIBLE / RESERVADO / BLOQUEADO</strong> con un vistazo.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <h3>Desde cualquier dispositivo</h3>
+            <p>
+              Reserva desde tu ordenador, móvil o tablet sin necesidad de instalar nada.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-alt">
+      <div class="container grid-2">
+        <div>
+          <h2 class="section-title">¿Cómo funciona?</h2>
+          <ol class="steps-list">
+            <li>
+              <h4>1. Accede a Reservas</h4>
+              <p>Selecciona la instalación y el día que quieres reservar.</p>
+            </li>
+            <li>
+              <h4>2. Elige franja disponible</h4>
+              <p>El sistema te muestra las franjas disponibles.</p>
+            </li>
+            <li>
+              <h4>3. Confirma tu reserva</h4>
+              <p>Revisa el resumen y confirma. Recibirás un código de reserva.</p>
+            </li>
+          </ol>
+        </div>
+
+        <div class="section-box">
+          <h3>Acceso rápido</h3>
+          <p>Empieza directamente desde aquí:</p>
+          <div class="quick-links">
+            <a href="reservas.html" class="quick-link">
+              <span class="quick-link-title">Reservar pista</span>
+              <span class="quick-link-desc">Ver disponibilidad y crear reserva</span>
+            </a>
+            <a href="instalaciones.html" class="quick-link">
+              <span class="quick-link-title">Instalaciones</span>
+              <span class="quick-link-desc">Consultar las instalaciones</span>
+            </a>
+            <a href="sobre-mi.html" class="quick-link">
+              <span class="quick-link-title">Sobre mí</span>
+              <span class="quick-link-desc">Información del autor y del proyecto</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="about-me-preview">
+          <div>
+            <h2 class="section-title">Sobre mí</h2>
+            <p class="section-subtitle">
+              Conoce al desarrollador de la aplicación, el objetivo del proyecto y las tecnologías utilizadas.
+            </p>
+          </div>
+          <a href="sobre-mi.html" class="btn btn-primary-outline">
+            Ir a la sección Sobre mí
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div data-include="footer.html"></div>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/include.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/home-hero.js"></script>
+</body>
+</html>

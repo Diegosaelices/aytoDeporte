@@ -1,0 +1,149 @@
+/* Responsive general */
+
+/* ====== ≥ tablet pequeña (hasta 1024px) ====== */
+@media (max-width: 1024px) {
+  .hero-inner {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.4fr);
+  }
+
+  .grid-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .grid-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ====== móviles / tablet pequeña (hasta 768px) ====== */
+@media (max-width: 768px) {
+  .header-inner {
+    gap: 10px;
+  }
+
+  .main-nav {
+    position: absolute;
+    top: var(--header-height);
+    right: 0;
+    left: 0;
+    flex-direction: column;
+    background: rgba(245, 245, 247, 0.98);
+    padding: 8px 16px 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    transform: translateY(-110%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.18s ease-out, opacity 0.18s ease-out;
+  }
+
+  /* Importante: coincide con la clase que añade JS (nav-open) */
+  .main-nav.nav-open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .nav-toggle {
+    display: block;
+  }
+
+  .hero-inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hero {
+    padding-top: 20px;
+  }
+
+  .grid-3 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .about-me-preview {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  /* Sobre mí en móvil */
+  .about-hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .about-hero-side {
+    order: -1; /* foto y datos arriba en móvil */
+  }
+
+  /* Zona usuario en el header (antes estaba en estilos.css) */
+  .nav-auth {
+    margin-left: 0;
+    margin-top: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .nav-user-label {
+    max-width: 100%;
+    white-space: normal;
+  }
+}
+
+/* ====== móviles pequeños (hasta 480px) ====== */
+@media (max-width: 480px) {
+  .hero-text h1 {
+    font-size: 24px;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+  }
+
+  .btn,
+  .btn-primary-outline {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ====== grid instalaciones intermedio (hasta 900px) ====== */
+@media (max-width: 900px) {
+  .installations-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ====== instalaciones y toolbar en móvil (hasta 600px) ====== */
+@media (max-width: 600px) {
+  .installations-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .installations-filters {
+    width: 100%;
+  }
+
+  .field-group input[type="search"],
+  .field-group select {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .installations-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Hero “single column” centrado (home logada/no logada) */
+.hero-inner-single {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}

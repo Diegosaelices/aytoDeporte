@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Página del perfil del usuario: muestra datos personales y todas sus reservas. -->
+  <!-- Permite filtrar reservas según estado y cancelar las que estén dentro del plazo. -->
+
+  <meta charset="UTF-8" />
+  <title>Mi perfil · AytoDeporte</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link rel="stylesheet" href="css/estilos.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+
+  <div data-include="header.html"></div>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        <h1 class="section-title">Mi perfil</h1>
+        <p class="section-subtitle">
+          Consulta tus datos básicos y gestiona tus reservas activas, finalizadas o canceladas.
+        </p>
+      </div>
+    </section>
+
+    <section class="section section-tight">
+      <div class="container">
+        <div class="section-box">
+          <h3>Datos del usuario</h3>
+          <p class="section-subtitle">
+            Esta información se obtiene de la sesión iniciada en la aplicación.
+          </p>
+
+          <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 6px; font-size: 14px;">
+            <div>
+              <strong>Nombre:</strong>
+              <span id="userName">Cargando...</span>
+            </div>
+            <div>
+              <strong>Email:</strong>
+              <span id="userEmail">Cargando...</span>
+            </div>
+          </div>
+
+          <div style="margin-top: 10px; font-size: 12px; color: var(--color-text-soft);">
+            <p>
+              Si alguno de estos datos no es correcto, habla con el administrador del sistema.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-no-top">
+      <div class="container">
+        <div class="installations-toolbar">
+          <div class="installations-filters">
+            <div class="field-group">
+              <label for="reservationsFilter">Mostrar</label>
+              <select id="reservationsFilter">
+                <option value="UPCOMING">Próximas</option>
+                <option value="ALL">Todas</option>
+                <option value="PAST">Finalizadas</option>
+                <option value="CANCELLED">Canceladas</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="installations-indicators">
+            <span id="reservationsCount" class="chip chip-soft">0 reservas</span>
+          </div>
+        </div>
+
+        <div style="margin-top: 18px;">
+          <h2 class="section-title">Mis reservas</h2>
+          <p class="section-subtitle">
+            Aquí puedes revisar tus reservas, ver el código asociado y cancelarlas si aún estás dentro del plazo permitido.
+          </p>
+        </div>
+
+        <div
+          id="reservationsList"
+          aria-live="polite"
+          aria-busy="false"
+          style="margin-top: 14px;"
+        ></div>
+
+        <p id="reservationsEmptyMessage" class="empty-message" hidden>
+          No tienes reservas registradas todavía.
+        </p>
+
+        <p id="reservationsErrorMessage" class="error-message" hidden>
+          Ha ocurrido un error al cargar tus reservas.
+          <br />
+          <span class="error-detail"></span>
+        </p>
+
+        <span
+          id="reservationFeedbackProfile"
+          class="hero-card-note"
+          aria-live="polite"
+          style="display: block; margin-top: 10px;"
+        ></span>
+      </div>
+    </section>
+  </main>
+
+  <div data-include="footer.html"></div>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/include.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/perfil.js"></script>
+</body>
+</html>

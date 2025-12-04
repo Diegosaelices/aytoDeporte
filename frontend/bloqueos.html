@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Página para que administradores creen y gestionen bloqueos de instalaciones.
+       Incluye formulario de creación y listado filtrable de bloqueos existentes. -->
+
+  <meta charset="UTF-8" />
+  <title>Gestión de bloqueos · AytoDeporte</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link rel="stylesheet" href="css/estilos.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+
+  <div data-include="header.html"></div>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        <h1 class="section-title">Gestión de bloqueos</h1>
+        <p class="section-subtitle">
+          Crea bloqueos de instalaciones por franjas horarias o días completos.
+          Solo disponible para usuarios administradores.
+        </p>
+      </div>
+    </section>
+
+    <section class="section section-alt section-no-top">
+      <div class="container" id="admin-blocks-container">
+
+        <div class="grid-2" id="admin-blocks-grid" style="display:none;">
+
+          <div>
+            <div class="section-box">
+              <h2 class="section-title small-title">Crear un nuevo bloqueo</h2>
+              <p class="section-subtitle">
+                Selecciona la instalación (o todas), el motivo y un rango de fechas y horas.
+              </p>
+
+              <form id="block-form" style="margin-top: 12px; display: flex; flex-direction: column; gap: 10px;">
+
+                <div class="field-group">
+                  <label for="block-installation">Instalación a bloquear</label>
+                  <select id="block-installation" name="installation">
+                    <option value="">Todas las instalaciones (bloqueo global)</option>
+                  </select>
+                </div>
+
+                <div class="field-group">
+                  <label>Fecha y hora de inicio</label>
+                  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <input type="date" id="block-start-date" required />
+                    <input type="time" id="block-start-time" required />
+                  </div>
+                </div>
+
+                <div class="field-group">
+                  <label>Fecha y hora de fin</label>
+                  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <input type="date" id="block-end-date" required />
+                    <input type="time" id="block-end-time" required />
+                  </div>
+                  <p class="hero-card-note" style="margin-top:4px;">
+                    Puedes usar un solo día o varios días. El bloqueo se aplica a cualquier reserva que se solape con este rango.
+                  </p>
+                </div>
+
+                <div class="field-group">
+                  <button
+                    type="button"
+                    class="btn btn-secondary btn-compact"
+                    id="block-fill-full-day"
+                  >
+                    Bloquear día completo (08:00–23:00)
+                  </button>
+                </div>
+
+                <div class="field-group">
+                  <label for="block-reason">Motivo del bloqueo</label>
+                  <input
+                    type="text"
+                    id="block-reason"
+                    placeholder="Torneo, mantenimiento, festivo..."
+                    required
+                    style="height: 36px; border-radius: 999px; padding: 6px 12px;"
+                  />
+                </div>
+
+                <p id="block-error" class="error-message" style="display:none;"></p>
+
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  id="block-submit"
+                  style="margin-top: 4px;"
+                >
+                  Crear bloqueo
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div>
+            <div class="section-box">
+              <h2 class="section-title small-title">Bloqueos actuales</h2>
+              <p class="section-subtitle">
+                Consulta y elimina bloqueos existentes. Puedes filtrar por instalación.
+              </p>
+
+              <div class="field-group" style="margin-top: 10px;">
+                <label for="block-filter-installation">Filtrar por instalación</label>
+                <select id="block-filter-installation">
+                  <option value="">Todas las instalaciones</option>
+                </select>
+              </div>
+
+              <div id="block-list" style="margin-top: 12px;"></div>
+
+              <p id="block-empty" class="empty-message" style="display:none; margin-top:12px;">
+                No hay bloqueos para el filtro seleccionado.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div data-include="footer.html"></div>
+  
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/include.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/bloqueos.js"></script>
+</body>
+</html>

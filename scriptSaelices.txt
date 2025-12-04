@@ -1,0 +1,266 @@
+-- =========================================================
+-- scriptSaelices.sql  |  AytoDeporte  (XAMPP / MySQL/MariaDB)
+-- =========================================================
+-- - DROP/CREATE DATABASE aytodeporte (utf8mb4)
+-- - Tablas: usuarios, instalaciones, reservas, bloqueos
+-- - La contraseña del admin es administrador y la de los otros dos usuarios es 123456
+-- - ENUMs para rol y tipo_instalacion
+-- - Índices y FKs (InnoDB)
+-- - Trigger: impedir cancelar reserva si faltan < 4 horas
+-- - Seeds: instalaciones + admin y 2 usuarios de prueba
+-- - Bloqueos:
+--     * 25-dic-2025 (todas las instalaciones, 08:00–23:00)
+--     * 01-ene-2026 (todas las instalaciones, 08:00–23:00)
+--     * 30-dic-2025 (todas las pistas de pádel, 08:00–23:00) - Torneo navideño
+-- - Reservas demo: 27-dic y 30-dic de 2025
+-- =========================================================
+
+DROP DATABASE IF EXISTS aytodeporte;
+CREATE DATABASE aytodeporte
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_general_ci;
+USE aytodeporte;
+
+-- ====================
+-- TABLA: usuarios
+-- ====================
+CREATE TABLE usuarios (
+  id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  nombre          VARCHAR(100) NOT NULL,
+  apellido        VARCHAR(150) NOT NULL,
+  email           VARCHAR(190) NOT NULL,
+  password_hash   VARCHAR(255) NOT NULL,
+  rol             ENUM('ADMIN','USUARIO') NOT NULL DEFAULT 'USUARIO',
+  creado_en       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  ultimo_acceso   TIMESTAMP NULL DEFAULT NULL,
+  CONSTRAINT uq_usuarios_email UNIQUE (email)
+) ENGINE=InnoDB;
+
+-- ====================
+-- TABLA: instalaciones
+-- ====================
+CREATE TABLE instalaciones (
+  id                  INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  nombre              VARCHAR(120) NOT NULL,
+  tipo_instalacion    ENUM(
+    'padel_vieja',
+    'padel_nueva',
+    'tenis',
+    'multipista',
+    'futbol_sala',
+    'campo_futbol'
+  ) NOT NULL,
+  numero              INT NULL,
+  activa              TINYINT(1) NOT NULL DEFAULT 1,
+  fecha_alta          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT uq_instalacion_tipo_num UNIQUE (tipo_instalacion, numero)
+) ENGINE=InnoDB;
+
+-- ====================
+-- TABLA: reservas
+-- ====================
+CREATE TABLE reservas (
+  id                      BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  usuario_id              INT UNSIGNED NOT NULL,
+  instalacion_id          INT UNSIGNED NOT NULL,
+  inicio                  DATETIME NOT NULL,
+  fin                     DATETIME NOT NULL,
+  estado                  ENUM('confirmada','cancelada') NOT NULL DEFAULT 'confirmada',
+  codigo_6                VARCHAR(6) NULL,
+  verificado_en_mostrador DATETIME NULL,
+  importe_calculado       DECIMAL(8,2) NOT NULL DEFAULT 0.00,
+  creado_en               TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_reserva_usuario
+    FOREIGN KEY (usuario_id)
+    REFERENCES usuarios(id)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT fk_reserva_instalacion
+    FOREIGN KEY (instalacion_id)
+    REFERENCES instalaciones(id)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  INDEX idx_reservas_instalacion_inicio (instalacion_id, inicio),
+  INDEX idx_reservas_usuario_inicio (usuario_id, inicio)
+) ENGINE=InnoDB;
+
+-- ====================
+-- TABLA: bloqueos
+-- ====================
+CREATE TABLE bloqueos (
+  id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  instalacion_id  INT UNSIGNED NULL,
+  motivo          VARCHAR(200) NOT NULL,
+  inicio          DATETIME NOT NULL,
+  fin             DATETIME NOT NULL,
+  creado_por      INT UNSIGNED NOT NULL,
+  creado_en       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_bloqueo_instalacion
+    FOREIGN KEY (instalacion_id)
+    REFERENCES instalaciones(id)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT fk_bloqueo_creado_por
+    FOREIGN KEY (creado_por)
+    REFERENCES usuarios(id)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  INDEX idx_bloqueos_instalacion_inicio (instalacion_id, inicio)
+) ENGINE=InnoDB;
+
+-- ====================
+-- TRIGGER: cancelar reserva
+-- ====================
+DELIMITER $$
+CREATE TRIGGER trg_reserva_no_cancelar_tarde
+BEFORE UPDATE ON reservas
+FOR EACH ROW
+BEGIN
+  IF NEW.estado = 'cancelada' AND OLD.estado <> 'cancelada' THEN
+    IF TIMESTAMPDIFF(MINUTE, NOW(), OLD.inicio) < 240 THEN
+      SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'No se puede cancelar: faltan menos de 4 horas para el inicio';
+    END IF;
+  END IF;
+END$$
+DELIMITER ;
+
+-- ====================
+-- SEED: usuarios
+-- (con hashes generados por el backend)
+-- ====================
+
+INSERT INTO usuarios (nombre, apellido, email, password_hash, rol)
+VALUES
+  ('Administrador',   'General',   'administrador@admin',
+   '$2a$10$jK.V8WY/kZM8XgYQyIKB3OYLglYgWsHmzdNgKEuwFto4DKbo7ncKy',
+   'ADMIN'),
+  ('Prueba1', 'Demo',      'prueba1@demo.com',
+   '$2a$10$DhyHT2NTaG2qfJA7feVp2.oXiDAl4hDYHP6RKdRhtdIAK9AJxsMaW',
+   'USUARIO'),
+  ('Prueba2', 'Demo',      'prueba2@demo.com',
+   '$2a$10$okePwYanK0RHDRJCBqM8DewMsFZbMpe.0uDBV8Zo8bbibVBqHbG0S',
+   'USUARIO');
+
+-- ====================
+-- SEED: instalaciones
+-- ====================
+
+INSERT INTO instalaciones (nombre, tipo_instalacion, numero) VALUES
+  ('Pádel Vieja V1', 'padel_vieja', 1),
+  ('Pádel Vieja V2', 'padel_vieja', 2),
+  ('Pádel Vieja V3', 'padel_vieja', 3),
+  ('Pádel Vieja V4', 'padel_vieja', 4);
+
+INSERT INTO instalaciones (nombre, tipo_instalacion, numero) VALUES
+  ('Pádel Nueva N1', 'padel_nueva', 1),
+  ('Pádel Nueva N2', 'padel_nueva', 2);
+
+INSERT INTO instalaciones (nombre, tipo_instalacion, numero) VALUES
+  ('Tenis 1', 'tenis', 1),
+  ('Tenis 2', 'tenis', 2),
+  ('Tenis 3', 'tenis', 3);
+
+INSERT INTO instalaciones (nombre, tipo_instalacion, numero) VALUES
+  ('Multipista', 'multipista', NULL);
+
+INSERT INTO instalaciones (nombre, tipo_instalacion, numero) VALUES
+  ('Fútbol sala', 'futbol_sala', NULL);
+
+INSERT INTO instalaciones (nombre, tipo_instalacion, numero) VALUES
+  ('Campo de fútbol', 'campo_futbol', NULL);
+
+-- ====================
+-- SEED: bloqueos
+-- ====================
+
+-- Cierre navideño 25-dic-2025 (todas las instalaciones)
+INSERT INTO bloqueos (instalacion_id, motivo, inicio, fin, creado_por)
+SELECT i.id,
+       'Cierre navideño',
+       '2025-12-25 08:00:00',
+       '2025-12-25 23:00:00',
+       (SELECT id FROM usuarios WHERE email = 'administrador@admin')
+FROM instalaciones i;
+
+-- Año Nuevo 01-ene-2026 (todas las instalaciones)
+INSERT INTO bloqueos (instalacion_id, motivo, inicio, fin, creado_por)
+SELECT i.id,
+       'Año Nuevo',
+       '2026-01-01 08:00:00',
+       '2026-01-01 23:00:00',
+       (SELECT id FROM usuarios WHERE email = 'administrador@admin')
+FROM instalaciones i;
+
+-- Torneo navideño de pádel 30-dic-2025 (solo pádel)
+INSERT INTO bloqueos (instalacion_id, motivo, inicio, fin, creado_por)
+SELECT i.id,
+       'Torneo navideño de pádel',
+       '2025-12-30 08:00:00',
+       '2025-12-30 23:00:00',
+       (SELECT id FROM usuarios WHERE email = 'administrador@admin')
+FROM instalaciones i
+WHERE i.tipo_instalacion IN ('padel_vieja','padel_nueva');
+
+-- ====================
+-- SEED: reservas demo
+-- ====================
+
+-- Reserva 1: 27-dic-2025, Prueba1 en Tenis 1, 1 hora (3.00 €)
+INSERT INTO reservas (
+  usuario_id,
+  instalacion_id,
+  inicio,
+  fin,
+  estado,
+  codigo_6,
+  importe_calculado
+)
+VALUES (
+  (SELECT id FROM usuarios WHERE email = 'prueba1@demo.com'),
+  (SELECT id FROM instalaciones WHERE nombre = 'Tenis 1'),
+  '2025-12-27 10:00:00',
+  '2025-12-27 11:00:00',
+  'confirmada',
+  '482913',
+  3.00
+);
+
+-- Reserva 2: 27-dic-2025, Prueba2 en Pádel Nueva N1, 1,5 h (4.50 €)
+INSERT INTO reservas (
+  usuario_id,
+  instalacion_id,
+  inicio,
+  fin,
+  estado,
+  codigo_6,
+  importe_calculado
+)
+VALUES (
+  (SELECT id FROM usuarios WHERE email = 'prueba2@demo.com'),
+  (SELECT id FROM instalaciones WHERE nombre = 'Pádel Nueva N1'),
+  '2025-12-27 18:30:00',
+  '2025-12-27 20:00:00',
+  'confirmada',
+  '759104',
+  4.50
+);
+
+-- Reserva 3: 30-dic-2025, Prueba1 en Campo de fútbol, 3h (9.00 €)
+INSERT INTO reservas (
+  usuario_id,
+  instalacion_id,
+  inicio,
+  fin,
+  estado,
+  codigo_6,
+  importe_calculado
+)
+VALUES (
+  (SELECT id FROM usuarios WHERE email = 'prueba1@demo.com'),
+  (SELECT id FROM instalaciones WHERE nombre = 'Campo de fútbol'),
+  '2025-12-30 09:00:00',
+  '2025-12-30 12:00:00',
+  'confirmada',
+  '116832',
+  9.00
+);
+
+
+
