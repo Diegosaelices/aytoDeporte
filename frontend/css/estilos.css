@@ -90,21 +90,6 @@ main {
   gap: 10px;
 }
 
-/* Icono antiguo (la “A” azul). Lo dejo por compatibilidad por si aún lo usas en alguna parte */
-
-.brand-logo {
-  width: 32px;
-  height: 32px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #007aff, #5ac8fa);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-weight: 700;
-  font-size: 18px;
-  box-shadow: var(--shadow-soft);
-}
 
 /* Logo con imagen */
 
@@ -122,7 +107,7 @@ main {
 }
 
 .brand-logo-img-wrapper:hover {
-  transform: scale(1.03); /* +3% */
+  transform: scale(1.03); 
 }
 
 .brand-logo-img {
@@ -239,7 +224,6 @@ main {
   font-size: 12px;
 }
 
-/* Botones */
 
 .btn {
   display: inline-flex;
@@ -466,7 +450,7 @@ main {
   color: var(--color-text-soft);
 }
 
-/* ABOUT ME PREVIEW (por si lo sigues usando en la home) */
+/* ABOUT ME PREVIEW  */
 
 .about-me-preview {
   margin-top: 10px;
@@ -811,7 +795,7 @@ main {
   border-color: var(--color-primary);
 }
 
-/* ===== Modal tipo Apple (reservas + cancelaciones) ===== */
+/* ===== Modal ===== */
 
 body.modal-open {
   overflow: hidden;

@@ -36,7 +36,6 @@
     transition: transform 0.18s ease-out, opacity 0.18s ease-out;
   }
 
-  /* Importante: coincide con la clase que añade JS (nav-open) */
   .main-nav.nav-open {
     transform: translateY(0);
     opacity: 1;
@@ -79,7 +78,6 @@
     order: -1; /* foto y datos arriba en móvil */
   }
 
-  /* Zona usuario en el header (antes estaba en estilos.css) */
   .nav-auth {
     margin-left: 0;
     margin-top: 8px;
