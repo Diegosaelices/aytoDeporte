@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <!-- Página para que administradores creen y gestionen bloqueos de instalaciones.
-       Incluye formulario de creación y listado filtrable de bloqueos existentes. -->
+  <!-- Panel de control para administradores del sistema AytoDeporte. -->
+  <!-- Permite gestionar bloqueos, instalaciones y usuarios desde una única vista. -->
 
   <meta charset="UTF-8" />
-  <title>Gestión de bloqueos · AytoDeporte</title>
+  <title>Panel de control · AytoDeporte</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <link rel="stylesheet" href="css/estilos.css" />
@@ -18,28 +18,27 @@
   <main>
     <section class="section">
       <div class="container">
-        <h1 class="section-title">Gestión de bloqueos</h1>
+        <h1 class="section-title">Panel de control</h1>
         <p class="section-subtitle">
-          Crea bloqueos de instalaciones por franjas horarias o días completos.
-          Solo disponible para usuarios administradores.
+          Gestiona bloqueos, instalaciones y usuarios desde una única sección
+          avanzada disponible solo para administradores.
         </p>
       </div>
     </section>
 
     <section class="section section-alt section-no-top">
       <div class="container" id="admin-blocks-container">
-
         <div class="grid-2" id="admin-blocks-grid" style="display:none;">
 
+          <!-- COLUMNA IZQUIERDA: BLOQUEOS -->
           <div>
             <div class="section-box">
-              <h2 class="section-title small-title">Crear un nuevo bloqueo</h2>
+              <h2 class="section-title small-title">Bloqueos de instalaciones</h2>
               <p class="section-subtitle">
-                Selecciona la instalación (o todas), el motivo y un rango de fechas y horas.
+                Crea bloqueos por días completos o franjas horarias. Afectan a la disponibilidad de reservas.
               </p>
 
               <form id="block-form" style="margin-top: 12px; display: flex; flex-direction: column; gap: 10px;">
-
                 <div class="field-group">
                   <label for="block-installation">Instalación a bloquear</label>
                   <select id="block-installation" name="installation">
@@ -62,7 +61,8 @@
                     <input type="time" id="block-end-time" required />
                   </div>
                   <p class="hero-card-note" style="margin-top:4px;">
-                    Puedes usar un solo día o varios días. El bloqueo se aplica a cualquier reserva que se solape con este rango.
+                    Puedes usar un solo día o varios días. El bloqueo se aplica a cualquier
+                    reserva que se solape con este rango.
                   </p>
                 </div>
 
@@ -99,10 +99,8 @@
                 </button>
               </form>
             </div>
-          </div>
 
-          <div>
-            <div class="section-box">
+            <div class="section-box" style="margin-top:16px;">
               <h2 class="section-title small-title">Bloqueos actuales</h2>
               <p class="section-subtitle">
                 Consulta y elimina bloqueos existentes. Puedes filtrar por instalación.
@@ -123,13 +121,98 @@
             </div>
           </div>
 
+          <!-- COLUMNA DERECHA: INSTALACIONES + USUARIOS -->
+          <div>
+            <div class="section-box">
+              <h2 class="section-title small-title">Gestión de instalaciones</h2>
+              <p class="section-subtitle">
+                Añade nuevas instalaciones o edita y elimina las existentes.
+              </p>
+
+              <form id="installation-form" style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
+                <input type="hidden" id="installation-id" />
+
+                <div class="field-group">
+                  <label for="installation-name">Nombre</label>
+                  <input
+                    type="text"
+                    id="installation-name"
+                    placeholder="Nombre de la instalación"
+                    required
+                    style="height: 34px; border-radius: 999px; padding: 6px 12px;"
+                  />
+                </div>
+
+                <div class="field-group">
+                  <label for="installation-number">Número</label>
+                  <input
+                    type="number"
+                    id="installation-number"
+                    placeholder="Ej: 1"
+                    min="1"
+                    style="height: 34px; border-radius: 999px; padding: 6px 12px;"
+                  />
+                </div>
+
+                <div class="field-group">
+                  <label for="installation-type">Tipo</label>
+                  <select id="installation-type">
+                    <option value="">Seleccionar tipo</option>
+                    <option value="PADEL_VIEJA">Pádel (pistas antiguas)</option>
+                    <option value="PADEL_NUEVA">Pádel (pistas nuevas)</option>
+                    <option value="TENIS">Tenis</option>
+                    <option value="CAMPO_FUTBOL">Campo de fútbol</option>
+                    <option value="FUTBOL_SALA">Fútbol sala</option>
+                    <option value="MULTIUSO">Multipista</option>
+                  </select>
+                </div>
+
+                <div class="field-group" style="display:flex; align-items:center; gap:8px;">
+                  <input type="checkbox" id="installation-active" checked />
+                  <label for="installation-active" style="margin:0;">Instalación activa</label>
+                </div>
+
+                <p id="installation-error" class="error-message" style="display:none;"></p>
+                <p id="installation-success" class="hero-card-note" style="display:none;"></p>
+
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  id="installation-submit"
+                  style="margin-top: 4px;"
+                >
+                  Guardar instalación
+                </button>
+              </form>
+
+              <div id="installation-list" style="margin-top: 14px;"></div>
+            </div>
+
+            <div class="section-box" style="margin-top:16px;">
+              <h2 class="section-title small-title">Gestión de usuarios</h2>
+              <p class="section-subtitle">
+                Consulta los usuarios del sistema y elimina aquellos que ya no deban tener acceso.
+              </p>
+
+              <div id="admin-users-list" style="margin-top: 10px;"></div>
+
+              <p id="admin-users-empty" class="empty-message" style="display:none;">
+                No hay usuarios registrados o no se han podido cargar.
+              </p>
+
+              <p id="admin-users-error" class="error-message" style="display:none;">
+                No se han podido cargar los usuarios. Inténtalo de nuevo más tarde.
+              </p>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
   </main>
 
   <div data-include="footer.html"></div>
-  
+
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/include.js"></script>

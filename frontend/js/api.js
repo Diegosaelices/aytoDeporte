@@ -1,16 +1,17 @@
 // Módulo central para comunicar el front con el backend REST.
-// Gestiona fetch, cabeceras, token y helpers específicos de la API.
+// Gestiona fetch, cabeceras, token y helpers específicos de la API (instalaciones, reservas, bloqueos, administración).
 
-// CONFIGURACIÓN BÁSICA API 
+/* ==== Configuración básica de la API ==== */
 
 const API_BASE_URL = "http://localhost:8080/api";
 
-// Obtiene el token almacenado (para Authorization)
+/* ==== Helpers de autenticación ==== */
+
 function getAuthToken() {
   return localStorage.getItem("aytodeporte_token") || null;
 }
 
-// WRAPPER GENERAL DE PETICIONES (fetch) 
+/* ==== Wrapper general de peticiones (fetch) ==== */
 
 async function apiFetch(path, options = {}) {
   const url = `${API_BASE_URL}${path}`;
@@ -29,10 +30,21 @@ async function apiFetch(path, options = {}) {
 
   if (!response.ok) {
     let errorText = "Error en la petición";
+
     try {
-      const errJson = await response.json();
-      errorText = errJson.message || errJson.error || errorText;
+      // Intentamos leer texto y, si es JSON, parsearlo
+      const raw = await response.text();
+      if (raw) {
+        try {
+          const errJson = JSON.parse(raw);
+          errorText = errJson.message || errJson.error || errorText;
+        } catch (_) {
+          // No era JSON, usamos el texto plano (ej. BusinessException como String)
+          errorText = raw;
+        }
+      }
     } catch (_) {}
+
     throw new Error(errorText);
   }
 
@@ -41,14 +53,14 @@ async function apiFetch(path, options = {}) {
   return response.json();
 }
 
-// ENDPOINTS ESPECÍFICOS   
+/* ==== Instalaciones (consulta pública y común) ==== */
 
-// Instalaciones
 async function apiGetInstallations() {
+  // GET /api/installations (InstallationController.getAll)
   return apiFetch("/installations", { method: "GET" });
 }
 
-// Instalaciones destacadas (uso de jQuery para ejemplo)
+// Ejemplo con jQuery para cargar instalaciones destacadas en la home
 function cargarInstalacionesDestacadas() {
   const $contenedor = $("#instalaciones-destacadas");
   if ($contenedor.length === 0) return;
@@ -88,56 +100,90 @@ function cargarInstalacionesDestacadas() {
   });
 }
 
-// Login
+/* ==== Autenticación (login) ==== */
+
 async function apiLogin(email, password) {
+  // POST /api/users/login (UserController.login)
   return apiFetch("/users/login", {
     method: "POST",
     body: JSON.stringify({ email, password })
   });
 }
 
-// Disponibilidad diaria
+/* ==== Disponibilidad y reservas ==== */
+
 async function apiGetDailyAvailability(installationId, date) {
   const params = new URLSearchParams({ installationId, date });
   return apiFetch(`/reservations/availability?${params.toString()}`, { method: "GET" });
 }
 
-// Crear reserva
 async function apiCreateReservation(userId, installationId, start, duration) {
   const params = new URLSearchParams({ userId, installationId, start, duration });
   return apiFetch(`/reservations?${params.toString()}`, { method: "POST" });
 }
 
-// Reservas de usuario
 async function apiGetUserReservations(userId) {
   return apiFetch(`/reservations/user/${userId}`, { method: "GET" });
 }
 
-// Cancelar reserva
 async function apiCancelReservation(reservationId, userId, admin = false) {
   const params = new URLSearchParams({ userId, admin });
   return apiFetch(`/reservations/${reservationId}/cancel?${params.toString()}`, { method: "POST" });
 }
 
-// BLOQUEOS (ADMIN)  
+/* ==== Bloqueos (ADMIN) ==== */
 
-// Crear un bloqueo
 async function apiCreateBlock(blockRequest) {
+  // POST /api/blocks
   return apiFetch("/blocks", {
     method: "POST",
     body: JSON.stringify(blockRequest)
   });
 }
 
-// Obtener bloqueos
 async function apiGetBlocks(installationId) {
+  // GET /api/blocks o /api/blocks/installation/{id}
   const path = installationId
     ? `/blocks/installation/${installationId}`
     : "/blocks";
   return apiFetch(path, { method: "GET" });
 }
 
-// Eliminar bloqueo
 async function apiDeleteBlock(blockId) {
+  // DELETE /api/blocks/{id}
   return apiFetch(`/blocks/${blockId}`, { method: "DELETE" });
+}
+
+/* ==== Instalaciones (ADMIN: crear, actualizar, eliminar) ==== */
+
+async function apiCreateInstallation(installationRequest) {
+  // POST /api/installations, solo ADMIN (InstallationController.create)
+  return apiFetch("/installations", {
+    method: "POST",
+    body: JSON.stringify(installationRequest)
+  });
+}
+
+async function apiUpdateInstallation(id, installationRequest) {
+  // PUT /api/installations/{id}, solo ADMIN (InstallationController.update)
+  return apiFetch(`/installations/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(installationRequest)
+  });
+}
+
+async function apiDeleteInstallation(id) {
+  // DELETE /api/installations/{id}, solo ADMIN (InstallationController.delete)
+  return apiFetch(`/installations/${id}`, {
+    method: "DELETE"
+  });
+}
+
+/* ==== Usuarios (ADMIN: listado y borrado) ==== */
+async function apiGetUsers() {
+  return apiFetch("/users", { method: "GET" });
+}
+
+async function apiDeleteUser(id) {
+  return apiFetch(`/users/${id}`, { method: "DELETE" });
 }

@@ -1,5 +1,5 @@
-// Servicio de negocio para gestionar usuarios: registro, autenticación y búsqueda por id.
-// Aplica validaciones de credenciales, normalización de email y actualización de último acceso.
+// Servicio de negocio para gestionar usuarios: registro, autenticación, consulta y borrado.
+// Aplica validaciones de credenciales, normalización de email y maneja restricciones de integridad.
 
 package com.aytodeporte.services;
 
@@ -7,10 +7,13 @@ import com.aytodeporte.models.User;
 import com.aytodeporte.repositories.UserRepository;
 import com.aytodeporte.utils.BusinessException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -90,5 +93,31 @@ public class UserService {
         return userRepository.findById(userId)
                 .orElseThrow(() ->
                         new BusinessException("Usuario no encontrado con id " + userId));
+    }
+
+    // Listado completo de usuarios (para el panel de administración)
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    // Borrado de usuario controlando restricciones de integridad (FK en reservas)
+    public void deleteUser(Long userId) {
+        if (userId == null) {
+            throw new BusinessException("Id de usuario no válido");
+        }
+
+        try {
+            userRepository.deleteById(userId);
+        } catch (EmptyResultDataAccessException ex) {
+            throw new BusinessException("Usuario no encontrado con id " + userId);
+        } catch (DataIntegrityViolationException ex) {
+            throw new BusinessException(
+                    "No se puede eliminar el usuario porque tiene reservas asociadas."
+            );
+        } catch (Exception ex) {
+            throw new BusinessException(
+                    "No se puede eliminar el usuario porque tiene reservas asociadas o está en uso."
+            );
+        }
     }
 }
