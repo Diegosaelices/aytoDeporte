@@ -1,11 +1,11 @@
 -- =========================================================
--- scriptSaelices.sql  |  AytoDeporte  (XAMPP / MySQL/MariaDB)
+-- scriptSaelices.sql  |  AytoDeporte 
 -- =========================================================
--- - DROP/CREATE DATABASE aytodeporte (utf8mb4)
+-- - DROP/CREATE DATABASE aytodeporte 
 -- - Tablas: usuarios, instalaciones, reservas, bloqueos
 -- - La contraseña del admin es administrador y la de los otros dos usuarios es 123456
 -- - ENUMs para rol y tipo_instalacion
--- - Índices y FKs (InnoDB)
+-- - Índices y FKs 
 -- - Trigger: impedir cancelar reserva si faltan < 4 horas
 -- - Seeds: instalaciones + admin y 2 usuarios de prueba
 -- - Bloqueos:
