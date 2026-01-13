@@ -28,10 +28,69 @@
 
     <section class="section section-alt section-no-top">
       <div class="container" id="admin-blocks-container">
+
+        <div class="section-box" id="admin-hub" style="display:none;">
+          <h2 class="section-title small-title">Menú de administración</h2>
+          <p class="section-subtitle">
+            Elige qué deseas gestionar.
+          </p>
+
+          <div class="quick-links" style="margin-top: 10px;">
+            <a href="#" class="quick-link" data-admin-go="create-block">
+              <span class="quick-link-title">
+                Bloqueo de instalaciones
+                <span class="hub-count" id="hub-count-create-block">—</span>
+              </span>
+              <span class="quick-link-desc">Crear un bloqueo por día o franja</span>
+            </a>
+
+            <a href="#" class="quick-link" data-admin-go="current-blocks">
+              <span class="quick-link-title">
+                Bloqueos actuales
+                <span class="hub-count" id="hub-count-current-blocks">—</span>
+              </span>
+              <span class="quick-link-desc">Consultar y eliminar bloqueos existentes</span>
+            </a>
+
+            <a href="#" class="quick-link" data-admin-go="installations">
+              <span class="quick-link-title">
+                Gestión de instalaciones
+                <span class="hub-count" id="hub-count-installations">—</span>
+              </span>
+              <span class="quick-link-desc">Crear, editar, activar/desactivar o eliminar</span>
+            </a>
+
+            <a href="#" class="quick-link" data-admin-go="users">
+              <span class="quick-link-title">
+                Gestión de usuarios
+                <span class="hub-count" id="hub-count-users">—</span>
+              </span>
+              <span class="quick-link-desc">Listado y eliminación de usuarios</span>
+            </a>
+          </div>
+        </div>
+
         <div class="grid-2" id="admin-blocks-grid" style="display:none;">
 
-          <!-- COLUMNA IZQUIERDA: BLOQUEOS -->
-          <div>
+          <div style="grid-column: 1 / -1;">
+            <div class="section-box" id="admin-topbar" style="display:none;">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+                <div>
+                  <h2 class="section-title small-title" id="admin-view-title" style="margin-bottom:4px;">Administración</h2>
+                  <p class="section-subtitle" id="admin-view-subtitle" style="margin:0;">
+                    Gestiona la sección seleccionada.
+                  </p>
+                </div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                  <button class="btn btn-secondary btn-compact" id="admin-back-to-menu" type="button">
+                    Volver al menú
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="admin-view-create-block" style="display:none;">
             <div class="section-box">
               <h2 class="section-title small-title">Bloqueos de instalaciones</h2>
               <p class="section-subtitle">
@@ -99,8 +158,10 @@
                 </button>
               </form>
             </div>
+          </div>
 
-            <div class="section-box" style="margin-top:16px;">
+          <div id="admin-view-current-blocks" style="display:none;">
+            <div class="section-box">
               <h2 class="section-title small-title">Bloqueos actuales</h2>
               <p class="section-subtitle">
                 Consulta y elimina bloqueos existentes. Puedes filtrar por instalación.
@@ -121,8 +182,7 @@
             </div>
           </div>
 
-          <!-- COLUMNA DERECHA: INSTALACIONES + USUARIOS -->
-          <div>
+          <div id="admin-view-installations" style="display:none;">
             <div class="section-box">
               <h2 class="section-title small-title">Gestión de instalaciones</h2>
               <p class="section-subtitle">
@@ -187,8 +247,10 @@
 
               <div id="installation-list" style="margin-top: 14px;"></div>
             </div>
+          </div>
 
-            <div class="section-box" style="margin-top:16px;">
+          <div id="admin-view-users" style="display:none;">
+            <div class="section-box">
               <h2 class="section-title small-title">Gestión de usuarios</h2>
               <p class="section-subtitle">
                 Consulta los usuarios del sistema y elimina aquellos que ya no deban tener acceso.

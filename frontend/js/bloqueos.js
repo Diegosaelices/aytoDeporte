@@ -35,12 +35,133 @@ function getCurrentUserId() {
   }
 }
 
+/* ==== Router simple de vistas del admin ==== */
+
+const ADMIN_VIEWS = {
+  menu: {
+    title: "Menú de administración",
+    subtitle: "Elige qué deseas gestionar."
+  },
+  "create-block": {
+    title: "Bloqueo de instalaciones",
+    subtitle: "Crea bloqueos por días completos o franjas horarias."
+  },
+  "current-blocks": {
+    title: "Bloqueos actuales",
+    subtitle: "Consulta y elimina bloqueos existentes."
+  },
+  installations: {
+    title: "Gestión de instalaciones",
+    subtitle: "Crear, editar, activar/desactivar o eliminar instalaciones."
+  },
+  users: {
+    title: "Gestión de usuarios",
+    subtitle: "Consulta y elimina usuarios del sistema."
+  }
+};
+
+function setAdminTopbar(viewKey) {
+  const topbar = document.getElementById("admin-topbar");
+  const titleEl = document.getElementById("admin-view-title");
+  const subtitleEl = document.getElementById("admin-view-subtitle");
+
+  if (!topbar || !titleEl || !subtitleEl) return;
+
+  const meta = ADMIN_VIEWS[viewKey] || ADMIN_VIEWS.menu;
+  titleEl.textContent = meta.title;
+  subtitleEl.textContent = meta.subtitle;
+
+  topbar.style.display = viewKey === "menu" ? "none" : "block";
+}
+
+function hideAllAdminViews() {
+  const hub = document.getElementById("admin-hub");
+  const grid = document.getElementById("admin-blocks-grid");
+
+  const views = [
+    "admin-view-create-block",
+    "admin-view-current-blocks",
+    "admin-view-installations",
+    "admin-view-users"
+  ];
+
+  if (hub) hub.style.display = "none";
+  views.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = "none";
+  });
+
+  if (grid) grid.style.display = "none";
+}
+
+function showAdminView(viewKey) {
+  hideAllAdminViews();
+
+  if (viewKey === "menu") {
+    const hub = document.getElementById("admin-hub");
+    if (hub) hub.style.display = "block";
+    setAdminTopbar("menu");
+    return;
+  }
+
+  const grid = document.getElementById("admin-blocks-grid");
+  if (grid) grid.style.display = "grid";
+
+  setAdminTopbar(viewKey);
+
+  const map = {
+    "create-block": "admin-view-create-block",
+    "current-blocks": "admin-view-current-blocks",
+    installations: "admin-view-installations",
+    users: "admin-view-users"
+  };
+
+  const id = map[viewKey];
+  const el = id ? document.getElementById(id) : null;
+  if (el) el.style.display = "block";
+}
+
+/* ==== Hub counters ==== */
+
+function setHubCount(id, value) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = value == null ? "—" : String(value);
+}
+
+async function refreshAdminHubCounters() {
+  setHubCount("hub-count-create-block", "—");
+  setHubCount("hub-count-current-blocks", "—");
+  setHubCount("hub-count-installations", "—");
+  setHubCount("hub-count-users", "—");
+
+  try {
+    const [blocks, installations, users] = await Promise.all([
+      typeof apiGetBlocks === "function" ? apiGetBlocks(null) : Promise.resolve([]),
+      typeof apiGetInstallations === "function" ? apiGetInstallations() : Promise.resolve([]),
+      typeof apiGetUsers === "function" ? apiGetUsers() : Promise.resolve([])
+    ]);
+
+    const blocksCount = Array.isArray(blocks) ? blocks.length : 0;
+    const instCount = Array.isArray(installations) ? installations.length : 0;
+    const activeInstCount = Array.isArray(installations)
+      ? installations.filter((i) => i && i.active !== false).length
+      : 0;
+    const usersCount = Array.isArray(users) ? users.length : 0;
+
+    setHubCount("hub-count-create-block", `${activeInstCount} activas`);
+    setHubCount("hub-count-current-blocks", blocksCount);
+    setHubCount("hub-count-installations", instCount);
+    setHubCount("hub-count-users", usersCount);
+  } catch (e) {
+    console.error("Error cargando contadores del hub:", e);
+  }
+}
+
 /* ==== Arranque del panel y control de permisos ==== */
 
 document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("admin-blocks-container");
-  const grid = document.getElementById("admin-blocks-grid");
-
   if (!container) return;
 
   const role = getCurrentUserRole();
@@ -63,14 +184,41 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  if (grid) grid.style.display = "grid";
-
-  initAdminControlPanel();
+  bindAdminHubNavigation();
+  initAdminControlPanelOnce().then(async () => {
+    await refreshAdminHubCounters();
+    showAdminView("menu");
+  });
 });
 
-/* ==== Panel principal: inicializa cada módulo ==== */
+function bindAdminHubNavigation() {
+  const hub = document.getElementById("admin-hub");
+  if (hub) hub.style.display = "block";
 
-async function initAdminControlPanel() {
+  document.querySelectorAll("[data-admin-go]").forEach((a) => {
+    a.addEventListener("click", (e) => {
+      e.preventDefault();
+      const key = a.getAttribute("data-admin-go");
+      if (!key) return;
+      showAdminView(key);
+      onAdminViewEntered(key);
+    });
+  });
+
+  const backBtn = document.getElementById("admin-back-to-menu");
+  if (backBtn) {
+    backBtn.addEventListener("click", () => {
+      refreshAdminHubCounters().finally(() => showAdminView("menu"));
+    });
+  }
+}
+
+let _adminInitialized = false;
+
+async function initAdminControlPanelOnce() {
+  if (_adminInitialized) return;
+  _adminInitialized = true;
+
   try {
     await initBlocksPanel();
   } catch (e) {
@@ -87,6 +235,23 @@ async function initAdminControlPanel() {
     await initUsersPanel();
   } catch (e) {
     console.error("Error inicializando usuarios:", e);
+  }
+}
+
+async function onAdminViewEntered(viewKey) {
+  try {
+    if (viewKey === "current-blocks") {
+      const filterSelect = document.getElementById("block-filter-installation");
+      await refreshBlocksList(filterSelect ? filterSelect.value : "");
+    }
+    if (viewKey === "installations") {
+      await refreshInstallationList();
+    }
+    if (viewKey === "users") {
+      await refreshUsersList();
+    }
+  } catch (e) {
+    console.error("Error refrescando vista admin:", viewKey, e);
   }
 }
 
@@ -128,7 +293,6 @@ async function initBlocksPanel() {
   }
 
   await loadInstallationsForBlocks(installationSelect, filterSelect);
-  await refreshBlocksList(filterSelect ? filterSelect.value : "");
 
   if (filterSelect) {
     filterSelect.addEventListener("change", async () => {
@@ -193,14 +357,13 @@ async function initBlocksPanel() {
           primaryLabel: "Aceptar"
         });
 
-        if (filterSelect) {
-          await refreshBlocksList(filterSelect.value);
-        } else {
-          await refreshBlocksList("");
-        }
+        const filterSelectNow = document.getElementById("block-filter-installation");
+        await refreshBlocksList(filterSelectNow ? filterSelectNow.value : "");
 
         const reasonInput = document.getElementById("block-reason");
         if (reasonInput) reasonInput.value = "";
+
+        refreshAdminHubCounters();
       } catch (err) {
         console.error("Error creando bloqueo:", err);
         showBlockError(
@@ -288,15 +451,17 @@ async function refreshBlocksList(installationId) {
       return;
     }
 
+    const grid = document.createElement("div");
+    grid.className = "admin-cards-grid";
+    listEl.appendChild(grid);
+
     const fragment = document.createDocumentFragment();
 
     blocks.forEach((b) => {
       const card = document.createElement("article");
       card.className = "installation-card";
 
-      const installationName =
-        b.installationName || "Todas las instalaciones";
-
+      const installationName = b.installationName || "Todas las instalaciones";
       const startStr = (b.start || "").replace("T", " ");
       const endStr = (b.end || "").replace("T", " ");
 
@@ -347,12 +512,11 @@ async function refreshBlocksList(installationId) {
             });
 
             await refreshBlocksList(installationId || "");
+            refreshAdminHubCounters();
           } catch (err) {
             console.error("Error eliminando bloqueo:", err);
             alert(
-              err && err.message
-                ? err.message
-                : "No se ha podido eliminar el bloqueo."
+              err && err.message ? err.message : "No se ha podido eliminar el bloqueo."
             );
           }
         });
@@ -361,12 +525,11 @@ async function refreshBlocksList(installationId) {
       fragment.appendChild(card);
     });
 
-    listEl.appendChild(fragment);
+    grid.appendChild(fragment);
   } catch (err) {
     console.error("Error obteniendo bloqueos:", err);
     if (emptyEl) {
-      emptyEl.textContent =
-        "No se han podido cargar los bloqueos. Inténtalo más tarde.";
+      emptyEl.textContent = "No se han podido cargar los bloqueos. Inténtalo más tarde.";
       emptyEl.style.display = "block";
     }
   }
@@ -456,13 +619,13 @@ async function initInstallationsPanel() {
         document.getElementById("block-installation"),
         document.getElementById("block-filter-installation")
       );
+
+      refreshAdminHubCounters();
     } catch (err) {
       console.error("Error guardando instalación:", err);
       if (errorEl) {
         errorEl.textContent =
-          err && err.message
-            ? err.message
-            : "No se ha podido guardar la instalación.";
+          err && err.message ? err.message : "No se ha podido guardar la instalación.";
         errorEl.style.display = "block";
       }
     } finally {
@@ -479,9 +642,7 @@ async function refreshInstallationList() {
 
   try {
     const installations =
-      typeof apiGetInstallations === "function"
-        ? await apiGetInstallations()
-        : [];
+      typeof apiGetInstallations === "function" ? await apiGetInstallations() : [];
 
     if (!installations || !installations.length) {
       listEl.innerHTML = `
@@ -492,6 +653,10 @@ async function refreshInstallationList() {
       return;
     }
 
+    const grid = document.createElement("div");
+    grid.className = "admin-cards-grid";
+    listEl.appendChild(grid);
+
     const fragment = document.createDocumentFragment();
 
     installations.forEach((inst) => {
@@ -499,28 +664,15 @@ async function refreshInstallationList() {
       card.className = "installation-card";
 
       const name = inst.name || inst.nombre || `Instalación ${inst.id}`;
-      const type =
-        inst.type ||
-        inst.tipo ||
-        inst.tipoInstalacion ||
-        "Sin tipo";
-      const number =
-        inst.number ??
-        inst.numero ??
-        null;
+      const type = inst.type || inst.tipo || inst.tipoInstalacion || "Sin tipo";
+      const number = inst.number ?? inst.numero ?? null;
       const active =
-        inst.active !== undefined && inst.active !== null
-          ? !!inst.active
-          : true;
+        inst.active !== undefined && inst.active !== null ? !!inst.active : true;
 
       const subtitleParts = [];
       subtitleParts.push(String(type));
-      if (number != null) {
-        subtitleParts.push(`Nº ${number}`);
-      }
-      if (!active) {
-        subtitleParts.push("(Inactiva)");
-      }
+      if (number != null) subtitleParts.push(`Nº ${number}`);
+      if (!active) subtitleParts.push("(Inactiva)");
 
       card.innerHTML = `
         <div class="installation-card-header">
@@ -579,13 +731,10 @@ async function refreshInstallationList() {
               document.getElementById("block-installation"),
               document.getElementById("block-filter-installation")
             );
+            refreshAdminHubCounters();
           } catch (err) {
             console.error("Error eliminando instalación:", err);
-            alert(
-              err && err.message
-                ? err.message
-                : "No se ha podido eliminar la instalación."
-            );
+            alert(err && err.message ? err.message : "No se ha podido eliminar la instalación.");
           }
         }
       });
@@ -593,7 +742,7 @@ async function refreshInstallationList() {
       fragment.appendChild(card);
     });
 
-    listEl.appendChild(fragment);
+    grid.appendChild(fragment);
   } catch (err) {
     console.error("Error obteniendo instalaciones:", err);
     listEl.innerHTML = `
@@ -622,17 +771,10 @@ function fillInstallationFormForEdit(inst) {
     const number = inst.number ?? inst.numero ?? "";
     numberInput.value = number !== null && number !== undefined ? String(number) : "";
   }
-  if (typeInput)
-    typeInput.value =
-      inst.type ||
-      inst.tipo ||
-      inst.tipoInstalacion ||
-      "";
+  if (typeInput) typeInput.value = inst.type || inst.tipo || inst.tipoInstalacion || "";
   if (activeInput) {
     const active =
-      inst.active !== undefined && inst.active !== null
-        ? !!inst.active
-        : true;
+      inst.active !== undefined && inst.active !== null ? !!inst.active : true;
     activeInput.checked = active;
   }
 
@@ -672,13 +814,16 @@ async function refreshUsersList() {
   }
 
   try {
-    const users =
-      typeof apiGetUsers === "function" ? await apiGetUsers() : [];
+    const users = typeof apiGetUsers === "function" ? await apiGetUsers() : [];
 
     if (!users || !users.length) {
       if (emptyEl) emptyEl.style.display = "block";
       return;
     }
+
+    const grid = document.createElement("div");
+    grid.className = "admin-cards-grid";
+    listEl.appendChild(grid);
 
     const fragment = document.createDocumentFragment();
 
@@ -733,13 +878,10 @@ async function refreshUsersList() {
               primaryLabel: "Aceptar"
             });
             await refreshUsersList();
+            refreshAdminHubCounters();
           } catch (err) {
             console.error("Error eliminando usuario:", err);
-            alert(
-              err && err.message
-                ? err.message
-                : "No se ha podido eliminar el usuario."
-            );
+            alert(err && err.message ? err.message : "No se ha podido eliminar el usuario.");
           }
         });
       }
@@ -747,13 +889,12 @@ async function refreshUsersList() {
       fragment.appendChild(card);
     });
 
-    listEl.appendChild(fragment);
+    grid.appendChild(fragment);
   } catch (err) {
     console.error("Error obteniendo usuarios:", err);
     if (errorEl) {
       errorEl.style.display = "block";
-      errorEl.textContent =
-        "No se han podido cargar los usuarios: " + (err.message || "");
+      errorEl.textContent = "No se han podido cargar los usuarios: " + (err.message || "");
     }
   }
 }
@@ -795,9 +936,7 @@ function showBlockModal(options) {
     backdrop.remove();
   };
 
-  document
-    .getElementById("blockModalPrimary")
-    ?.addEventListener("click", closeModal);
+  document.getElementById("blockModalPrimary")?.addEventListener("click", closeModal);
 
   backdrop.addEventListener("click", (e) => {
     if (e.target === backdrop) {
