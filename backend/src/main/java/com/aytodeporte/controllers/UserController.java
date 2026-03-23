@@ -28,10 +28,12 @@ public class UserController {
     private final UserService userService;
     private final JwtUtil jwtUtil;
 
-    @GetMapping("/ping")
-    public ResponseEntity<String> ping() {
-        return ResponseEntity.ok("UserController funcionando");
-    }
+   @GetMapping("/ping")
+public ResponseEntity<String> ping() {
+    return ResponseEntity.ok()
+        .header("Access-Control-Allow-Origin", "https://aytodeporte.netlify.app")
+        .body("UserController funcionando v2");
+}
 
     // Registro de usuario con generación automática de JWT
     @PostMapping("/register")
