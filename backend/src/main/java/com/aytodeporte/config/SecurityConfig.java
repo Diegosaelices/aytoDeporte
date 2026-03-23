@@ -40,6 +40,7 @@ public class SecurityConfig {
 
         // Define qué rutas son públicas y cuáles requieren autenticación
         http.authorizeHttpRequests(auth -> auth
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(
                         "/",
                         "/index.html",
