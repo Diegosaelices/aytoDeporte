@@ -169,7 +169,7 @@ cd backend
 
 **Diego Saelices Saelices**
 - GitHub: [@Diegosaelices](https://github.com/Diegosaelices)
-- LinkedIn: *(añadir enlace)*
+- LinkedIn: www.linkedin.com/in/diego-saelices-saelices-285459250
 
 ---
 
