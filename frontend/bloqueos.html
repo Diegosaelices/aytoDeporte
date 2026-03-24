@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <!-- Panel de control para administradores del sistema AytoDeporte. -->
-  <!-- Permite gestionar bloqueos, instalaciones y usuarios desde una única vista. -->
+  <!-- Permite gestionar bloqueos, instalaciones, usuarios y reservas desde una única vista. -->
 
   <meta charset="UTF-8" />
   <title>Panel de control · AytoDeporte</title>
@@ -20,7 +20,7 @@
       <div class="container">
         <h1 class="section-title">Panel de control</h1>
         <p class="section-subtitle">
-          Gestiona bloqueos, instalaciones y usuarios desde una única sección
+          Gestiona bloqueos, instalaciones, usuarios y reservas desde una única sección
           avanzada disponible solo para administradores.
         </p>
       </div>
@@ -66,6 +66,14 @@
                 <span class="hub-count" id="hub-count-users">—</span>
               </span>
               <span class="quick-link-desc">Listado y eliminación de usuarios</span>
+            </a>
+
+            <a href="#" class="quick-link" data-admin-go="reservations">
+              <span class="quick-link-title">
+                Gestión de reservas
+                <span class="hub-count" id="hub-count-reservations">—</span>
+              </span>
+              <span class="quick-link-desc">Ver y cancelar reservas activas</span>
             </a>
           </div>
         </div>
@@ -265,6 +273,30 @@
               <p id="admin-users-error" class="error-message" style="display:none;">
                 No se han podido cargar los usuarios. Inténtalo de nuevo más tarde.
               </p>
+            </div>
+          </div>
+
+          <div id="admin-view-reservations" style="display:none;">
+            <div class="section-box">
+              <h2 class="section-title small-title">Gestión de reservas</h2>
+              <p class="section-subtitle">
+                Consulta todas las reservas activas y cancélalas si es necesario.
+              </p>
+
+              <div class="field-group" style="margin-top: 10px;">
+                <label for="reservations-filter-installation">Filtrar por instalación</label>
+                <select id="reservations-filter-installation">
+                  <option value="">Todas las instalaciones</option>
+                </select>
+              </div>
+
+              <div id="reservations-list" style="margin-top: 12px;"></div>
+
+              <p id="reservations-empty" class="empty-message" style="display:none; margin-top:12px;">
+                No hay reservas activas para el filtro seleccionado.
+              </p>
+
+              <p id="reservations-error" class="error-message" style="display:none; margin-top:12px;"></p>
             </div>
           </div>
 

@@ -1,4 +1,4 @@
-// Panel de control ADMIN: bloqueos, instalaciones y gestión básica de usuarios.
+// Panel de control ADMIN: bloqueos, instalaciones, gestión básica de usuarios y reservas.
 
 /* ==== Utilidades de contexto y escape ==== */
 
@@ -57,6 +57,10 @@ const ADMIN_VIEWS = {
   users: {
     title: "Gestión de usuarios",
     subtitle: "Consulta y elimina usuarios del sistema."
+  },
+  reservations: {
+    title: "Gestión de reservas",
+    subtitle: "Consulta y cancela reservas activas."
   }
 };
 
@@ -82,7 +86,8 @@ function hideAllAdminViews() {
     "admin-view-create-block",
     "admin-view-current-blocks",
     "admin-view-installations",
-    "admin-view-users"
+    "admin-view-users",
+    "admin-view-reservations"
   ];
 
   if (hub) hub.style.display = "none";
@@ -113,7 +118,8 @@ function showAdminView(viewKey) {
     "create-block": "admin-view-create-block",
     "current-blocks": "admin-view-current-blocks",
     installations: "admin-view-installations",
-    users: "admin-view-users"
+    users: "admin-view-users",
+    reservations: "admin-view-reservations"
   };
 
   const id = map[viewKey];
@@ -134,6 +140,7 @@ async function refreshAdminHubCounters() {
   setHubCount("hub-count-current-blocks", "—");
   setHubCount("hub-count-installations", "—");
   setHubCount("hub-count-users", "—");
+  setHubCount("hub-count-reservations", "Ver");
 
   try {
     const [blocks, installations, users] = await Promise.all([
@@ -153,6 +160,7 @@ async function refreshAdminHubCounters() {
     setHubCount("hub-count-current-blocks", blocksCount);
     setHubCount("hub-count-installations", instCount);
     setHubCount("hub-count-users", usersCount);
+    setHubCount("hub-count-reservations", "Ver");
   } catch (e) {
     console.error("Error cargando contadores del hub:", e);
   }
@@ -236,6 +244,12 @@ async function initAdminControlPanelOnce() {
   } catch (e) {
     console.error("Error inicializando usuarios:", e);
   }
+
+  try {
+    await initReservationsPanel();
+  } catch (e) {
+    console.error("Error inicializando reservas:", e);
+  }
 }
 
 async function onAdminViewEntered(viewKey) {
@@ -249,6 +263,10 @@ async function onAdminViewEntered(viewKey) {
     }
     if (viewKey === "users") {
       await refreshUsersList();
+    }
+    if (viewKey === "reservations") {
+      const filterSelect = document.getElementById("reservations-filter-installation");
+      await refreshReservationsList(filterSelect ? filterSelect.value : "");
     }
   } catch (e) {
     console.error("Error refrescando vista admin:", viewKey, e);
@@ -895,6 +913,160 @@ async function refreshUsersList() {
     if (errorEl) {
       errorEl.style.display = "block";
       errorEl.textContent = "No se han podido cargar los usuarios: " + (err.message || "");
+    }
+  }
+}
+
+/* ********************************************************************
+ * RESERVAS (listado y cancelación, ADMIN)
+ * ******************************************************************** */
+
+async function initReservationsPanel() {
+  const filterSelect = document.getElementById("reservations-filter-installation");
+  if (!filterSelect) return;
+
+  try {
+    const installations = typeof apiGetInstallations === "function"
+      ? await apiGetInstallations()
+      : [];
+
+    installations.forEach((inst) => {
+      const opt = document.createElement("option");
+      opt.value = inst.id;
+      opt.textContent = inst.name || inst.nombre || `Instalación ${inst.id}`;
+      filterSelect.appendChild(opt);
+    });
+  } catch (e) {
+    console.error("Error cargando instalaciones en filtro reservas:", e);
+  }
+
+  filterSelect.addEventListener("change", async () => {
+    await refreshReservationsList(filterSelect.value);
+  });
+}
+
+async function refreshReservationsList(installationId) {
+  const listEl = document.getElementById("reservations-list");
+  const emptyEl = document.getElementById("reservations-empty");
+  const errorEl = document.getElementById("reservations-error");
+
+  if (!listEl) return;
+
+  listEl.innerHTML = '<p class="section-subtitle">Cargando reservas...</p>';
+  if (emptyEl) emptyEl.style.display = "none";
+  if (errorEl) { errorEl.style.display = "none"; errorEl.textContent = ""; }
+
+  try {
+    let reservations = [];
+
+    if (installationId) {
+      reservations = await apiFetch(`/reservations/installation/${installationId}`, { method: "GET" });
+    } else {
+      const installations = typeof apiGetInstallations === "function"
+        ? await apiGetInstallations()
+        : [];
+
+      const results = await Promise.all(
+        installations.map((inst) =>
+          apiFetch(`/reservations/installation/${inst.id}`, { method: "GET" }).catch(() => [])
+        )
+      );
+      reservations = results.flat();
+    }
+
+    listEl.innerHTML = "";
+
+    if (!reservations || reservations.length === 0) {
+      if (emptyEl) emptyEl.style.display = "block";
+      return;
+    }
+
+    reservations.sort((a, b) => new Date(a.start) - new Date(b.start));
+
+    const grid = document.createElement("div");
+    grid.className = "admin-cards-grid";
+    listEl.appendChild(grid);
+
+    const fragment = document.createDocumentFragment();
+
+    reservations.forEach((res) => {
+      const card = document.createElement("article");
+      card.className = "installation-card";
+
+      const startDate = res.start ? new Date(res.start) : null;
+      const endDate = res.end ? new Date(res.end) : null;
+
+      const formatDate = (d) => d
+        ? d.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" })
+        : "—";
+      const formatTime = (d) => d
+        ? d.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })
+        : "—";
+
+      card.innerHTML = `
+        <div class="installation-card-header">
+          <div>
+            <div class="installation-name">${escapeHtml(res.installationName || `Instalación ${res.installationId}`)}</div>
+            <div class="installation-type">
+              ${escapeHtml(res.userEmail || `Usuario ${res.userId}`)}
+            </div>
+          </div>
+          <span class="chip chip-soft">
+            Código: ${escapeHtml(res.code || "—")}
+          </span>
+        </div>
+        <div class="installation-card-body" style="margin: 8px 0; font-size: 0.85rem; color: var(--color-text-soft, #666);">
+          📅 ${formatDate(startDate)} &nbsp;·&nbsp;
+          🕐 ${formatTime(startDate)} – ${formatTime(endDate)} &nbsp;·&nbsp;
+          ⏱ ${res.durationMinutes || "—"} min &nbsp;·&nbsp;
+          💶 ${res.amount != null ? res.amount + " €" : "—"}
+        </div>
+        <div class="installation-card-footer">
+          <button class="btn btn-danger btn-compact" data-res-id="${res.id}" data-user-id="${res.userId}">
+            Cancelar reserva
+          </button>
+        </div>
+      `;
+
+      const btn = card.querySelector("button");
+      if (btn) {
+        btn.addEventListener("click", async () => {
+          const confirmCancel = window.confirm(
+            `¿Seguro que quieres cancelar esta reserva?\n` +
+            `Instalación: ${res.installationName || res.installationId}\n` +
+            `Usuario: ${res.userEmail || res.userId}\n` +
+            `Fecha: ${formatDate(startDate)} ${formatTime(startDate)}`
+          );
+          if (!confirmCancel) return;
+
+          try {
+            await apiCancelReservation(res.id, res.userId, true);
+            showBlockModal({
+              icon: "✅",
+              title: "Reserva cancelada",
+              text: "La reserva se ha cancelado correctamente.",
+              primaryLabel: "Aceptar"
+            });
+            const filterSelect = document.getElementById("reservations-filter-installation");
+            await refreshReservationsList(filterSelect ? filterSelect.value : "");
+          } catch (err) {
+            console.error("Error cancelando reserva:", err);
+            alert(err && err.message ? err.message : "No se ha podido cancelar la reserva.");
+          }
+        });
+      }
+
+      fragment.appendChild(card);
+    });
+
+    grid.appendChild(fragment);
+
+  } catch (err) {
+    console.error("Error obteniendo reservas:", err);
+    listEl.innerHTML = "";
+    if (errorEl) {
+      errorEl.style.display = "block";
+      errorEl.textContent = "No se han podido cargar las reservas: " + (err.message || "");
     }
   }
 }
