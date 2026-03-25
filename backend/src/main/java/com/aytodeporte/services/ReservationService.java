@@ -116,16 +116,18 @@ public class ReservationService {
         return toResponse(updated);
     }
 
-    @Transactional(readOnly = true)
+        @Transactional(readOnly = true)
     public List<ReservationResponse> getReservationsByUser(Long userId) {
         User user = userService.getByIdOrThrow(userId);
-        List<Reservation> list =
-                reservationRepository.findByUserAndStatus(user, ReservationStatus.CONFIRMED);
-
+ 
+        // Devuelve TODAS las reservas (confirmadas y canceladas)
+        List<Reservation> list = reservationRepository.findByUser(user);
+ 
         return list.stream()
                 .map(this::toResponse)
                 .toList();
     }
+
 
     @Transactional(readOnly = true)
     public List<ReservationResponse> getReservationsByInstallation(Long installationId) {

@@ -3,18 +3,18 @@
 <head>
   <!-- Panel de control para administradores del sistema AytoDeporte. -->
   <!-- Permite gestionar bloqueos, instalaciones, usuarios y reservas desde una única vista. -->
-
+ 
   <meta charset="UTF-8" />
   <title>Panel de control · AytoDeporte</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
+ 
   <link rel="stylesheet" href="css/estilos.css" />
   <link rel="stylesheet" href="css/responsive.css" />
 </head>
 <body>
-
+ 
   <div data-include="header.html"></div>
-
+ 
   <main>
     <section class="section">
       <div class="container">
@@ -25,16 +25,16 @@
         </p>
       </div>
     </section>
-
+ 
     <section class="section section-alt section-no-top">
       <div class="container" id="admin-blocks-container">
-
+ 
         <div class="section-box" id="admin-hub" style="display:none;">
           <h2 class="section-title small-title">Menú de administración</h2>
           <p class="section-subtitle">
             Elige qué deseas gestionar.
           </p>
-
+ 
           <div class="quick-links" style="margin-top: 10px;">
             <a href="#" class="quick-link" data-admin-go="create-block">
               <span class="quick-link-title">
@@ -43,7 +43,7 @@
               </span>
               <span class="quick-link-desc">Crear un bloqueo por día o franja</span>
             </a>
-
+ 
             <a href="#" class="quick-link" data-admin-go="current-blocks">
               <span class="quick-link-title">
                 Bloqueos actuales
@@ -51,7 +51,7 @@
               </span>
               <span class="quick-link-desc">Consultar y eliminar bloqueos existentes</span>
             </a>
-
+ 
             <a href="#" class="quick-link" data-admin-go="installations">
               <span class="quick-link-title">
                 Gestión de instalaciones
@@ -59,7 +59,7 @@
               </span>
               <span class="quick-link-desc">Crear, editar, activar/desactivar o eliminar</span>
             </a>
-
+ 
             <a href="#" class="quick-link" data-admin-go="users">
               <span class="quick-link-title">
                 Gestión de usuarios
@@ -67,7 +67,7 @@
               </span>
               <span class="quick-link-desc">Listado y eliminación de usuarios</span>
             </a>
-
+ 
             <a href="#" class="quick-link" data-admin-go="reservations">
               <span class="quick-link-title">
                 Gestión de reservas
@@ -77,9 +77,9 @@
             </a>
           </div>
         </div>
-
+ 
         <div class="grid-2" id="admin-blocks-grid" style="display:none;">
-
+ 
           <div style="grid-column: 1 / -1;">
             <div class="section-box" id="admin-topbar" style="display:none;">
               <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
@@ -97,14 +97,14 @@
               </div>
             </div>
           </div>
-
+ 
           <div id="admin-view-create-block" style="display:none;">
             <div class="section-box">
               <h2 class="section-title small-title">Bloqueos de instalaciones</h2>
               <p class="section-subtitle">
                 Crea bloqueos por días completos o franjas horarias. Afectan a la disponibilidad de reservas.
               </p>
-
+ 
               <form id="block-form" style="margin-top: 12px; display: flex; flex-direction: column; gap: 10px;">
                 <div class="field-group">
                   <label for="block-installation">Instalación a bloquear</label>
@@ -112,7 +112,7 @@
                     <option value="">Todas las instalaciones (bloqueo global)</option>
                   </select>
                 </div>
-
+ 
                 <div class="field-group">
                   <label>Fecha y hora de inicio</label>
                   <div style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -120,7 +120,7 @@
                     <input type="time" id="block-start-time" required />
                   </div>
                 </div>
-
+ 
                 <div class="field-group">
                   <label>Fecha y hora de fin</label>
                   <div style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -132,7 +132,7 @@
                     reserva que se solape con este rango.
                   </p>
                 </div>
-
+ 
                 <div class="field-group">
                   <button
                     type="button"
@@ -142,7 +142,7 @@
                     Bloquear día completo (08:00–23:00)
                   </button>
                 </div>
-
+ 
                 <div class="field-group">
                   <label for="block-reason">Motivo del bloqueo</label>
                   <input
@@ -153,9 +153,9 @@
                     style="height: 36px; border-radius: 999px; padding: 6px 12px;"
                   />
                 </div>
-
+ 
                 <p id="block-error" class="error-message" style="display:none;"></p>
-
+ 
                 <button
                   type="submit"
                   class="btn btn-primary"
@@ -167,39 +167,39 @@
               </form>
             </div>
           </div>
-
+ 
           <div id="admin-view-current-blocks" style="display:none;">
             <div class="section-box">
               <h2 class="section-title small-title">Bloqueos actuales</h2>
               <p class="section-subtitle">
                 Consulta y elimina bloqueos existentes. Puedes filtrar por instalación.
               </p>
-
+ 
               <div class="field-group" style="margin-top: 10px;">
                 <label for="block-filter-installation">Filtrar por instalación</label>
                 <select id="block-filter-installation">
                   <option value="">Todas las instalaciones</option>
                 </select>
               </div>
-
+ 
               <div id="block-list" style="margin-top: 12px;"></div>
-
+ 
               <p id="block-empty" class="empty-message" style="display:none; margin-top:12px;">
                 No hay bloqueos para el filtro seleccionado.
               </p>
             </div>
           </div>
-
+ 
           <div id="admin-view-installations" style="display:none;">
             <div class="section-box">
               <h2 class="section-title small-title">Gestión de instalaciones</h2>
               <p class="section-subtitle">
                 Añade nuevas instalaciones o edita y elimina las existentes.
               </p>
-
+ 
               <form id="installation-form" style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
                 <input type="hidden" id="installation-id" />
-
+ 
                 <div class="field-group">
                   <label for="installation-name">Nombre</label>
                   <input
@@ -210,7 +210,7 @@
                     style="height: 34px; border-radius: 999px; padding: 6px 12px;"
                   />
                 </div>
-
+ 
                 <div class="field-group">
                   <label for="installation-number">Número</label>
                   <input
@@ -221,7 +221,7 @@
                     style="height: 34px; border-radius: 999px; padding: 6px 12px;"
                   />
                 </div>
-
+ 
                 <div class="field-group">
                   <label for="installation-type">Tipo</label>
                   <select id="installation-type">
@@ -234,15 +234,15 @@
                     <option value="MULTIUSO">Multipista</option>
                   </select>
                 </div>
-
+ 
                 <div class="field-group" style="display:flex; align-items:center; gap:8px;">
                   <input type="checkbox" id="installation-active" checked />
                   <label for="installation-active" style="margin:0;">Instalación activa</label>
                 </div>
-
+ 
                 <p id="installation-error" class="error-message" style="display:none;"></p>
                 <p id="installation-success" class="hero-card-note" style="display:none;"></p>
-
+ 
                 <button
                   type="submit"
                   class="btn btn-primary"
@@ -252,61 +252,67 @@
                   Guardar instalación
                 </button>
               </form>
-
+ 
               <div id="installation-list" style="margin-top: 14px;"></div>
             </div>
           </div>
-
+ 
           <div id="admin-view-users" style="display:none;">
             <div class="section-box">
               <h2 class="section-title small-title">Gestión de usuarios</h2>
               <p class="section-subtitle">
                 Consulta los usuarios del sistema y elimina aquellos que ya no deban tener acceso.
               </p>
-
+ 
               <div id="admin-users-list" style="margin-top: 10px;"></div>
-
+ 
               <p id="admin-users-empty" class="empty-message" style="display:none;">
                 No hay usuarios registrados o no se han podido cargar.
               </p>
-
+ 
               <p id="admin-users-error" class="error-message" style="display:none;">
                 No se han podido cargar los usuarios. Inténtalo de nuevo más tarde.
               </p>
             </div>
           </div>
-
+ 
           <div id="admin-view-reservations" style="display:none;">
             <div class="section-box">
               <h2 class="section-title small-title">Gestión de reservas</h2>
               <p class="section-subtitle">
                 Consulta todas las reservas activas y cancélalas si es necesario.
               </p>
-
-              <div class="field-group" style="margin-top: 10px;">
-                <label for="reservations-filter-installation">Filtrar por instalación</label>
-                <select id="reservations-filter-installation">
-                  <option value="">Todas las instalaciones</option>
-                </select>
+ 
+              <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top: 10px;">
+                <div class="field-group" style="flex:1; min-width:180px;">
+                  <label for="reservations-filter-installation">Filtrar por instalación</label>
+                  <select id="reservations-filter-installation">
+                    <option value="">Todas las instalaciones</option>
+                  </select>
+                </div>
+                <div class="field-group" style="flex:1; min-width:160px;">
+                  <label for="reservations-filter-date">Filtrar por día</label>
+                  <input type="date" id="reservations-filter-date" />
+                </div>
               </div>
-
+ 
               <div id="reservations-list" style="margin-top: 12px;"></div>
-
+ 
               <p id="reservations-empty" class="empty-message" style="display:none; margin-top:12px;">
                 No hay reservas activas para el filtro seleccionado.
               </p>
-
+ 
               <p id="reservations-error" class="error-message" style="display:none; margin-top:12px;"></p>
             </div>
           </div>
-
+ 
         </div>
       </div>
     </section>
   </main>
-
+ 
   <div data-include="footer.html"></div>
-
+ 
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/include.js"></script>

@@ -266,7 +266,11 @@ async function onAdminViewEntered(viewKey) {
     }
     if (viewKey === "reservations") {
       const filterSelect = document.getElementById("reservations-filter-installation");
-      await refreshReservationsList(filterSelect ? filterSelect.value : "");
+      const dateFilterInput = document.getElementById("reservations-filter-date");
+      await refreshReservationsList(
+        filterSelect ? filterSelect.value : "",
+        dateFilterInput ? dateFilterInput.value : ""
+      );
     }
   } catch (e) {
     console.error("Error refrescando vista admin:", viewKey, e);
@@ -923,6 +927,7 @@ async function refreshUsersList() {
 
 async function initReservationsPanel() {
   const filterSelect = document.getElementById("reservations-filter-installation");
+  const dateFilterInput = document.getElementById("reservations-filter-date");
   if (!filterSelect) return;
 
   try {
@@ -941,11 +946,18 @@ async function initReservationsPanel() {
   }
 
   filterSelect.addEventListener("change", async () => {
-    await refreshReservationsList(filterSelect.value);
+    const date = dateFilterInput ? dateFilterInput.value : "";
+    await refreshReservationsList(filterSelect.value, date);
   });
+
+  if (dateFilterInput) {
+    dateFilterInput.addEventListener("change", async () => {
+      await refreshReservationsList(filterSelect.value, dateFilterInput.value);
+    });
+  }
 }
 
-async function refreshReservationsList(installationId) {
+async function refreshReservationsList(installationId, dateFilter) {
   const listEl = document.getElementById("reservations-list");
   const emptyEl = document.getElementById("reservations-empty");
   const errorEl = document.getElementById("reservations-error");
@@ -972,6 +984,15 @@ async function refreshReservationsList(installationId) {
         )
       );
       reservations = results.flat();
+    }
+
+    // Filtrar por fecha si se ha seleccionado una
+    if (dateFilter) {
+      reservations = reservations.filter((res) => {
+        if (!res.start) return false;
+        const resDate = res.start.substring(0, 10);
+        return resDate === dateFilter;
+      });
     }
 
     listEl.innerHTML = "";
